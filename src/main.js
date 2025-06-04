@@ -1,9 +1,13 @@
 // @ts-check
 
 import "./style.css";
-const squaresContainer = document.querySelector(".square-container");
+const squaresContainer = document.querySelector(".squares-container");
 const squaresCount = document.querySelector(".squares-count");
 const promptButton = document.querySelector(".prompt-button");
+const resetButton = document.querySelector(".reset-button");
+
+let currentSquaresPerRow = 16;
+let isDrawing = false;
 
 const rgb = () => {
   const r = Math.floor(Math.random() * 256);
@@ -16,16 +20,31 @@ const handleEventListeners = () => {
   /** @type {NodeListOf<HTMLDivElement>} */
   const squares = document.querySelectorAll(".square");
 
+  const draw = event => {
+    if (event.target && event.target instanceof HTMLElement) {
+      const square = event.target;
+      let currentOpacity = parseFloat(square.style.opacity);
+      if (isNaN(currentOpacity)) currentOpacity = 1.0;
+
+      if (currentOpacity >= 0.99) square.style.backgroundColor = rgb();
+      square.style.opacity = Math.max(0, currentOpacity - 0.1);
+    }
+  };
+
   squares.forEach(square => {
-    square.addEventListener("mouseenter", () => {
-      square.classList.contains("leave-transition") && square.classList.remove("leave-transition");
-      if (Number(square.style.opacity) === 1) square.style.backgroundColor = rgb();
-      square.style.opacity = `calc(${square.style.opacity} - 0.1)`;
+    // square.addEventListener("mouseenter", draw);
+    square.addEventListener("mousedown", e => {
+      isDrawing = true;
+      draw(e);
     });
+    square.addEventListener("mouseup", () => (isDrawing = false));
+    // square.addEventListener("mouseleave", () => (isDrawing = false));
+    square.addEventListener("mousemove", e => isDrawing && draw(e));
   });
 };
 
 const addSquareDivs = (squaresPerRow = 16) => {
+  currentSquaresPerRow = squaresPerRow;
   const totalSquares = squaresPerRow * squaresPerRow;
   if (squaresCount) squaresCount.textContent = `${squaresPerRow} x ${squaresPerRow}`;
   if (squaresContainer) squaresContainer.innerHTML = "";
@@ -40,8 +59,6 @@ const addSquareDivs = (squaresPerRow = 16) => {
 
   handleEventListeners();
 };
-
-addSquareDivs();
 
 promptButton?.addEventListener("click", () => {
   let validInput = false;
@@ -61,3 +78,7 @@ promptButton?.addEventListener("click", () => {
     }
   }
 });
+
+resetButton?.addEventListener("click", () => addSquareDivs(currentSquaresPerRow));
+
+window.onload = () => addSquareDivs();
