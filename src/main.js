@@ -2,9 +2,12 @@
 
 import "./style.css";
 const squaresContainer = document.querySelector(".squares-container");
-const squaresCount = document.querySelector(".squares-count");
+const squaresCountText = document.querySelector(".squares-count-text");
+const squaresCountSlider = document.querySelector(".squares-count-slider");
 const promptButton = document.querySelector(".prompt-button");
 const resetButton = document.querySelector(".reset-button");
+const toggleThemeButton = document.querySelector(".toggle-theme-button");
+const root = document.documentElement;
 
 let currentSquaresPerRow = 16;
 let isDrawing = false;
@@ -19,6 +22,8 @@ const rgb = () => {
 const handleEventListeners = () => {
   /** @type {NodeListOf<HTMLDivElement>} */
   const squares = document.querySelectorAll(".square");
+  /** @type {HTMLDivElement | null} */
+  const buttonsContainer = document.querySelector(".buttons-container");
 
   const draw = event => {
     if (event.target && event.target instanceof HTMLElement) {
@@ -40,13 +45,36 @@ const handleEventListeners = () => {
     square.addEventListener("mouseup", () => (isDrawing = false));
     // square.addEventListener("mouseleave", () => (isDrawing = false));
     square.addEventListener("mousemove", e => isDrawing && draw(e));
+    buttonsContainer?.addEventListener("mouseleave", () => (isDrawing = false));
   });
+
+  resetButton?.addEventListener("click", () => addSquareDivs(currentSquaresPerRow));
+
+  localStorage.setItem("theme", "dark");
+  const getCurrentTheme = () => localStorage.getItem("theme");
+  root.classList.add(getCurrentTheme() === "dark" ? "dark" : "light");
+
+  if (toggleThemeButton) {
+    toggleThemeButton.textContent = getCurrentTheme() === "dark" ? "☀" : "☽";
+  }
+
+  const handleThemeToggle = () => {
+    const newTheme = getCurrentTheme() === "dark" ? "light" : "dark";
+    localStorage.setItem("theme", newTheme);
+    root.classList.remove("dark", "light");
+    root.classList.add(newTheme);
+    if (toggleThemeButton) {
+      toggleThemeButton.textContent = newTheme === "dark" ? "☀" : "☽";
+    }
+  };
+
+  toggleThemeButton?.addEventListener("click", handleThemeToggle);
 };
 
 const addSquareDivs = (squaresPerRow = 16) => {
   currentSquaresPerRow = squaresPerRow;
   const totalSquares = squaresPerRow * squaresPerRow;
-  if (squaresCount) squaresCount.textContent = `${squaresPerRow} x ${squaresPerRow}`;
+  if (squaresCountText) squaresCountText.textContent = `${squaresPerRow} x ${squaresPerRow}`;
   if (squaresContainer) squaresContainer.innerHTML = "";
 
   for (let i = 1; i <= totalSquares; i++) {
@@ -79,6 +107,12 @@ promptButton?.addEventListener("click", () => {
   }
 });
 
-resetButton?.addEventListener("click", () => addSquareDivs(currentSquaresPerRow));
+/* squaresCountSlider?.addEventListener("input", event => {
+  // @ts-ignore
+  const val = event.target.value;
+  addSquareDivs(val);
+}); */
 
-window.onload = () => addSquareDivs();
+window.onload = () => {
+  addSquareDivs();
+};

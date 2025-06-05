@@ -11,8 +11,12 @@
     <div class="buttons-container">
       <button class="button prompt-button">Click to change number of squares per row</button>
       <button class="button reset-button">Reset</button>
+      <button class="button toggle-theme-button" aria-label="Theme toggler"></button>
     </div>
-    <p class="squares-count"></p>
+    <div class="squares-count-container">
+      <p class="squares-count-text"></p>
+      <!-- <input class="squares-count-slider" type="range" min="1" max="100" value="16" /> -->
+    </div>
     <main class="squares-container"></main>
     <script type="module" src="/src/main.js"></script>
   </body>
